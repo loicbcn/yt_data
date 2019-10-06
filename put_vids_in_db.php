@@ -15,10 +15,14 @@ ini_set("xdebug.var_display_max_depth", 5);
 
 include('../lib/functions.php');
 $PDO = getpdo();
-$insertsql = 'INSERT INTO myvids (filename, friendly, extension) values(:filename, :friendly, :extension)';
+
+$PDO->query("TRUNCATE myvids;");
+
+$insertsql = 'INSERT INTO myvids (filename, friendly, extension, friendly_suffix) values(:filename, :friendly, :extension, :friendly_suffix)';
 $q = $PDO->prepare($insertsql);
 
-
+$testdoublesql = 'SELECT count(*) nb FROM myvids WHERE friendly = :str';
+$tq = $PDO->prepare($testdoublesql);
 
 $data_path = 'D:/yt_vids/Takeout/YouTube/videos/';
 $vids = glob("$data_path*{.avi,.mp4}",GLOB_BRACE);
@@ -29,23 +33,36 @@ $cleans = [];
 $doubles = [];
 foreach ($vids as $v) {
   $pathinfo = pathinfo($v);
+  $friendly_suffix = null;
 
-  //var_dump($pathinfo);
   $original_name = $pathinfo['filename'];
   $ext = $pathinfo['extension'];
-  $clean_name = friendly_url(utf8_encode($original_name));  
-  
-  $q->execute([':filename' => utf8_encode($original_name), ':friendly' => friendly_url(utf8_encode($original_name)), 'extension' => $pathinfo['extension']]);
-  $allv[] = ['original' => $original_name, 'convert' => $clean_name];
-  
-  if (in_array($clean_name, $cleans)) {
-    $doubles[] = $clean_name;
+  $clean_name = friendly_url(iconv('Windows-1252', 'UTF-8', $original_name));
+
+
+  if (substr($clean_name,-1) == '_') {
+    $clean_name = substr($clean_name, 0, -1);
   }
-  $cleans[] = $clean_name;
+
+  $tq->execute([':str' => $clean_name]);
+  $numrows = (int) $tq->fetchColumn();
+
+  if ($numrows > 0 ) {
+    $friendly_suffix = $numrows;
+  }
+  
+  $q->execute([
+    ':filename' => $original_name, 
+    ':friendly' => $clean_name, 
+    ':extension' => $pathinfo['extension'],
+    ':friendly_suffix' => $friendly_suffix
+  ]);
+
+  $allv[] = ['original' => $original_name, 'convert' => $clean_name];
   
 }
 
-var_dump($doubles);
+
 var_dump($allv);
 
 
