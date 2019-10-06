@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost
--- Généré le :  Dim 06 Octobre 2019 à 17:02
+-- Généré le :  Dim 06 Octobre 2019 à 20:08
 -- Version du serveur :  5.7.11
 -- Version de PHP :  5.6.18
 
@@ -25,7 +25,8 @@ CREATE TABLE `myvids` (
   `yt_id` varchar(11) DEFAULT NULL,
   `filename` varchar(255) DEFAULT NULL,
   `extension` varchar(5) DEFAULT NULL,
-  `friendly` varchar(255) DEFAULT NULL
+  `friendly` varchar(255) DEFAULT NULL,
+  `friendly_suffix` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
