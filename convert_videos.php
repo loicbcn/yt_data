@@ -15,14 +15,14 @@ ini_set("xdebug.var_display_max_depth", 5);
 
 include('functions.php');
 
-$data_path = 'D:/donnees/perso/videos/';
-$data_dest_path = 'D:/donnees/perso/videos_codees/';
+$data_path = 'D:/yt_vids/Takeout/YouTube/videos/';
+$data_dest_path = 'D:/yt_vids/Takeout/YouTube/videos_codees/';
 
-$PDO = new PDO('mysql:host=localhost;dbname=recup_vids','root','');
+$PDO = new PDO('mysql:host=localhost;dbname=recup_vids','root','root');
 $PDO->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_WARNING);
 $PDO->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE,PDO::FETCH_OBJ);
 
-$disqvids = $PDO->query('select * from myvids order by friendly limit 2;');
+$disqvids = $PDO->query('select * from myvids order by friendly;');
 
 foreach ($disqvids as $dv) {
     $video_name = $dv->friendly;
@@ -33,7 +33,13 @@ foreach ($disqvids as $dv) {
 
     $video_source_path = $data_path . $video_name;
     $video_dest_path = $data_dest_path . $video_name;
-    $commamnd = '"C:/ffmpeg/bin/ffmpeg" -i '. $video_source_path .' -vcodec h264 -acodec aac -strict -2 '. $video_dest_path;
-    echo $command ."\n";
-    exec($commamnd);
+    if (!file_exists($video_dest_path)) {
+        $commamnd = '"C:/ffmpeg/bin/ffmpeg" -i '. $video_source_path .' -vcodec h264 -acodec aac -strict -2 '. $video_dest_path;
+        echo $commamnd ."\n";
+        //echo "$video_source_path<br>";
+        //var_dump(file_exists($video_dest_path));
+        //echo '<hr>';
+        exec($commamnd);
+    }
+
 }
